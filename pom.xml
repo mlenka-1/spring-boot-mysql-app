@@ -95,14 +95,5 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</pluginRepository>
-		</pluginRepository>
-		        <mirrors>
-                                <mirror>
-                                   <id>nexus</id>
-                                   <url>http://192.168.124.144:8081/#admin/repository/repositories:springboot-mysql-lab1</url>
-                                   <mirrorOf>central</mirrorOf>
-                                </mirror>
-                        </mirrors>
-	        </pluginRepository>
         </pluginRepositories>
 </project>
