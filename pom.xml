@@ -6,7 +6,7 @@
 	<groupId>guru.springframework</groupId>
 	<artifactId>spring-boot-mysql</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 
 	<name>spring-boot-mysql</name>
 	<description>Demo project for Spring Boot and MySQL</description>
