@@ -1,87 +1,83 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-app-mysql
+  labels:
+    app: demo-app
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: demo-app
+    tier: mysql
+  clusterIP: None
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  labels:
+    app: demo-app
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: demo-app-spring
+  name: demo-app-mysql
   labels:
-    app: demo-app-spring
+    app: demo-app
 spec:
-  replicas: 1
   selector:
     matchLabels:
-      app: demo-app-spring
+      app: demo-app
+      tier: mysql
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
-        app: demo-app-spring
+        app: demo-app
+        tier: mysql
     spec:
       containers:
-      - name: demo-app-spring
-        image: srilabs/springappmysql:12
-        imagePullPolicy: IfNotPresent
-        ports:
-          - name: http
-            containerPort: 8080
-        resources:
-          limits:
-            cpu: 0.2
-            memory: "200Mi"
+      - image: mysql:latest
+        name: mysql
         env:
-        - name: DB_PASSWORD
+        - name: MYSQL_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: mysql-config-map
+              key: mysql-database-name
+        - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
               name: mysql-pass
-              key: mysql-user-password
-        - name: DB_SERVER
-          valueFrom:
-            configMapKeyRef:
-              name:  mysql-config-map
-              key: mysql-server
-        - name: DB_NAME
-          valueFrom:
-            configMapKeyRef:
-              name:  mysql-config-map
-              key: mysql-database-name
-        - name: DB_USERNAME
+              key: mysql-root-password
+        - name: MYSQL_USER
           valueFrom:
             configMapKeyRef:
               name: mysql-config-map
               key: mysql-user-username
-      imagePullSecrets:
-        - name: regcred
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: demo-app-spring
-  labels:
-    app: demo-app-spring
-spec:
-  type: LoadBalancer
-  selector:
-    app: demo-app-spring
-  ports:
-  - protocol: TCP
-    name: http
-    port: 8080
-    targetPort: 8080
-    nodePort: 30000-30100
-
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: example-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
-spec:
-  rules:
-    - host: springbootapp.webapp
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: web
-                port:
-                  number: 8080
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: mysql-user-password
+        livenessProbe:
+          tcpSocket:
+            port: 3306
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-pvc
