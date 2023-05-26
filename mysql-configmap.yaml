@@ -4,5 +4,5 @@ metadata:
   name: mysql-config-map
 data:
   mysql-server: demo-app-mysql
-  mysql-database-name: sridb    
+  mysql-database-name: sridb
   mysql-user-username: sri
