@@ -10,20 +10,7 @@ spec:
   selector:
     app: demo-app
     tier: mysql
-  clusterIP: None
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mysql-pvc
-  labels:
-    app: demo-app
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
+  type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -45,8 +32,8 @@ spec:
         tier: mysql
     spec:
       containers:
-      - image: mysql:latest
-        name: mysql
+      - name: mysql
+        image: mysql
         env:
         - name: MYSQL_DATABASE
           valueFrom:
@@ -68,16 +55,16 @@ spec:
             secretKeyRef:
               name: mysql-pass
               key: mysql-user-password
-        livenessProbe:
-          tcpSocket:
-            port: 3306
+        #livenessProbe:
+          #tcpSocket:
+           # port: 3306
         ports:
         - containerPort: 3306
           name: mysql
         volumeMounts:
         - name: mysql-persistent-storage
-          mountPath: /var/lib/mysql
+          mountPath: /mnt/data
       volumes:
       - name: mysql-persistent-storage
         persistentVolumeClaim:
-          claimName: mysql-pvc
+          claimName: mysql-pv-claim
