@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: demo-app-spring
-        image: srilabs/springappmysql:14
+        image: srilabs/springappmysql:15
         imagePullPolicy: IfNotPresent
         ports:
           - name: http
