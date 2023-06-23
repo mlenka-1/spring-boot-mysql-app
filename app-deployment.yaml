@@ -17,7 +17,7 @@ spec:
       containers:
       - name: demo-app-spring
         image: srilabs/springappmysql:latest
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always              #IfNotPresent
         ports:
           - name: http
             containerPort: 8080
